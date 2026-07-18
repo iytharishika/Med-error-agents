@@ -1,0 +1,355 @@
+Prompt #1
+
+Key agents 
+ for each of the following agents, give me a Short description,  Tools needed, data the specific agent needs to pull from EHR to provide useful output e.g, clinical history, labs
+1. polypharmacy/deprescription analyzer
+2. GDMT optimization
+3. dose intelligence
+4. risk monitoring
+5. drug-supplement interactions
+6. cost optimization
+
+
+Kapsule AI: Product Build Brief
+Build Kapsule AI, an EHR-embedded medication intelligence and clinical decision-support web application. It should analyze diagnoses, medications, allergies, age, laboratory results, renal function, and specialist context to recommend safer, evidence-based regimen changes.
+1.⁠ ⁠Application surfaces
+Public marketing site
+Create:
+•⁠  ⁠Home
+•⁠  ⁠Platform
+•⁠  ⁠Pricing
+•⁠  ⁠Provider Panel
+Explain Kapsule AI’s modules, workflow, outcomes, and differentiation from legacy clinical decision-support systems such as Epic Best Practice Alerts and reference tools such as UpToDate. Include clear calls to action leading into the clinical demo.
+
+Clinical application
+Create: a clinical dashboard, patient info (DOB, MRN, gender), etc
+The dashboard is the interactive medication optimization cockpit. The patient route provides an expanded chart review.
+
+2.⁠ ⁠Mock clinical data
+Include 8 realistic, internally consistent patients with:
+•⁠  ⁠Demographics, MRN, PCP, care team, diagnoses, and allergies, including reaction type and severity
+•⁠  ⁠Active medications with dose, start date, class, and optional risk flags
+•⁠  ⁠Laboratory results with values, units, trends, and optional severity tones
+•⁠  ⁠Longitudinal eGFR and creatinine data
+•⁠  ⁠Health, clinical risk, and GDMT-gap scores
+•⁠  ⁠Health-score contributing factors
+•⁠  ⁠Medication, laboratory, visit, and alert timeline events
+•⁠  ⁠Precomputed recommendations from multiple reasoning modules
+Also include a drug library with at least 150 commonly prescribed medications and fuzzy search functionality. Each entry should contain:
+•⁠  ⁠Generic and brand names
+•⁠  ⁠Drug class and class tags
+•⁠  ⁠Typical dosing
+•⁠  ⁠Renal and hepatic guidance
+•⁠  ⁠Pregnancy and lactation guidance
+•⁠  ⁠Monitoring defaults
+•⁠  ⁠Boxed warnings
+•⁠  ⁠Beers Criteria flags
+•⁠  ⁠Evidence labels
+
+3.⁠ ⁠Evidence resolver
+Implement a centralized resolver that maps every evidence label to a verified external source.
+Examples:
+•⁠  ⁠Landmark trials mapped to the correct PubMed record
+•⁠  ⁠Guidelines mapped to their PubMed or publisher record
+•⁠  ⁠Drug safety information mapped to FDA sources
+•⁠  ⁠Other references mapped to authoritative PubMed, Choosing Wisely, or equivalent endpoints
+Every evidence chip must open the correct source in a new tab. Do not display fabricated citations.
+
+4.⁠ ⁠Deterministic medication reasoning engine
+Implement: drug check with drug, patient and simulated drugs
+Return structured findings containing:
+•⁠  ⁠Kind
+•⁠  ⁠Severity
+•⁠  ⁠Finding
+•⁠  ⁠Patient-specific rationale
+•⁠  ⁠Mechanism
+•⁠  ⁠Recommended action
+•⁠  ⁠Monitoring plan
+•⁠  ⁠Evidence labels
+Severity levels: contraindicated | major | moderate | minor | info
+The same inputs must always produce the same results.
+
+Required reasoning
+Drug interactions
+Include at least 50 curated common interaction rules covering:
+•⁠  ⁠RAAS stacking and hyperkalemia
+•⁠  ⁠NSAID, ACE inhibitor, and diuretic-associated AKI risk
+•⁠  ⁠Bleeding and antithrombotic combinations
+•⁠  ⁠QT prolongation
+•⁠  ⁠CNS and respiratory depression
+•⁠  ⁠CYP3A and P-glycoprotein interactions
+•⁠  ⁠Serotonin syndrome
+•⁠  ⁠Hypoglycemia
+•⁠  ⁠Digoxin toxicity
+•⁠  ⁠Statin and macrolide toxicity
+•⁠  ⁠Nitrate and PDE5 inhibitor contraindications
+•⁠  ⁠Warfarin and TMP-SMX interactions
+•⁠  ⁠Drug and supplement interactions
+
+Cumulative burden
+Detect increasing:
+•⁠  ⁠QT-prolonging burden
+•⁠  ⁠Anticholinergic burden
+•⁠  ⁠CNS-depressant burden
+Escalate anticholinergic risk for patients aged 65 or older.
+
+Duplicate therapy
+Detect same-class or clinically duplicative therapies across common medication classes.
+
+Patient-specific cautions
+Include rules such as:
+•⁠  ⁠Metformin contraindicated below eGFR 30 and cautioned below eGFR 45
+•⁠  ⁠NSAIDs avoided in severe CKD
+•⁠  ⁠Dabigatran avoided below CrCl 30
+•⁠  ⁠Thiazides flagged as less effective below eGFR 30
+•⁠  ⁠SGLT2 inhibitors not initiated below eGFR 20
+•⁠  ⁠Gabapentinoid renal dose adjustment
+•⁠  ⁠Potassium of 5.0 mEq/L or higher blocking RAAS inhibitor, MRA, or potassium initiation
+•⁠  ⁠Low hemoglobin increasing NSAID or antithrombotic concern
+•⁠  ⁠Beers Criteria medications in older adults
+
+Positive indications
+Surface evidence-based benefit when appropriate, including:
+•⁠  ⁠SGLT2 inhibitors for HFrEF, CKD, or type 2 diabetes
+•⁠  ⁠High-intensity statins for ASCVD
+
+Dose and monitoring guidance
+Provide renal or hepatic dose guidance and monitoring such as:
+•⁠  ⁠Potassium and creatinine at 72 hours and 2 weeks after RAAS inhibitor or MRA initiation
+•⁠  ⁠Baseline and follow-up QTc for stacked QT-prolonging drugs
+Deduplicate evidence across findings.
+Also implement: search drugs (query)
+Search generic names, brand names, and drug classes, ranking prefix matches above partial matches.
+
+5.⁠ ⁠Dashboard requirements
+Global interface
+Include:
+•⁠  ⁠Patient switcher with last-viewed patient persistence
+•⁠  ⁠Sticky review-progress bar
+•⁠  ⁠“Accept all safe” action with a confirmation step
+•⁠  ⁠Care-team indicator
+•⁠  ⁠Patient identity and score header
+•⁠  ⁠Signal chips for critical findings, recommendations, GDMT gaps, monitoring items, duplicates, and current eGFR
+•⁠  ⁠Keyboard-accessible tabs with item counts
+•⁠  ⁠Loading and empty states
+•⁠  ⁠Toasts with an 8 to 10 second Undo action
+•⁠  ⁠Per-patient state persistence in localStorage
+Persist recommendation status, monitoring completion, active tab, last-viewed patient, and sidebar state.
+
+Regimen Recommendations
+Provide one-at-a-time recommendation review with:
+•⁠  ⁠Previous and next navigation
+•⁠  ⁠Accept, Defer, and Dismiss actions
+•⁠  ⁠navigation
+•⁠  ⁠actions
+•⁠  ⁠? shortcut help
+•⁠  ⁠Severity, module, confidence, finding, action, patient message, and evidence
+•⁠  ⁠Progress and status counts
+•⁠  ⁠Bulk acceptance of noncritical, high-confidence recommendations
+
+New Med Simulator
+Allow clinicians to search for and simulate candidate medications against active medications.
+For each drug, show:
+•⁠  ⁠Overall severity
+•⁠  ⁠Drug-interaction findings
+•⁠  ⁠Drug-disease findings
+•⁠  ⁠Duplicate therapy
+•⁠  ⁠Beers Criteria findings
+•⁠  ⁠QT risk
+•⁠  ⁠Renal considerations
+•⁠  ⁠Clickable evidence
+Every finding must explain why it applies to the patient using actual chart values such as age, potassium, eGFR, medications, or diagnoses.
+Support simulation of multiple candidate drugs. Check each candidate against both active medications and other simulated drugs.
+Display:
+•⁠  ⁠Running severity totals
+•⁠  ⁠Projected Health-score change using:
+    * Contraindicated: −15
+    * Major: −8
+    * Moderate: −4
+    * Minor: −1
+    * Info: +2
+•⁠  ⁠Reset simulation
+•⁠  ⁠Add to chart as a mock action
+
+Deprescribing
+Aggregate recommendations involving:
+•⁠  ⁠Beers Criteria and anticholinergic burden
+•⁠  ⁠Potentially inappropriate medications
+•⁠  ⁠Duplicate therapy
+•⁠  ⁠Low-value chronic PPI use
+•⁠  ⁠Other deprescribing opportunities
+Sort by severity, then confidence. Support Accept, Defer, and Undo actions. Persist all states.
+
+Monitoring
+Convert recommendations into actionable watch-outs grouped by parent recommendation.
+Each watch-out should include:
+•⁠  ⁠Type: Lab, Vital, Symptom, or Medication
+•⁠  ⁠Item
+•⁠  ⁠Timing
+•⁠  ⁠Frequency
+•⁠  ⁠Rationale
+•⁠  ⁠Evidence
+Include filters and completion checkboxes with a persistent progress bar.
+
+Timeline
+Display a sortable vertical chronology of:
+•⁠  ⁠Specific Medication starts, stops, holds and dose changes (with reason in parenthesis) - by whom *e.g., Mike Daniels, MD). Traceable to source 
+•⁠  ⁠Relevant laboratory results that affect medication decisions
+•⁠  ⁠Visits where changes to medications were made
+•⁠  ⁠Alerts
+Support filters for event type, medication name, risk level, and date range.
+
+Persistent patient rail
+Show:
+•⁠  ⁠Identity and score summaries
+•⁠  ⁠Latest vitals and laboratory results
+•⁠  ⁠Trend arrows
+•⁠  ⁠eGFR mini-chart
+•⁠  ⁠Allergies
+•⁠  ⁠Active diagnoses
+•⁠  ⁠Care team
+•⁠  ⁠Mock “Open in EHR” actions that trigger a handoff toast to open the active medication list
+Collapse the rail at narrower laptop widths.
+
+6.⁠ ⁠Patient deep-dive
+The /patient/:id route should include expanded versions of:
+•⁠  ⁠Medication list with classes and risk flags
+•⁠  ⁠Laboratory table
+•⁠  ⁠Renal trend chart
+•⁠  ⁠Recommendations grouped by module
+•⁠  ⁠Monitoring plan
+•⁠  ⁠Timeline
+•⁠  ⁠Health-score breakdown
+•⁠  ⁠Problem list
+•⁠  ⁠Allergies and care team
+Link this route from the dashboard and Provider Panel.
+
+7.⁠ ⁠Marketing content
+Home
+Include:
+•⁠  ⁠Hero and positioning
+•⁠  ⁠Comparison with legacy clinical decision support
+•⁠  ⁠Module grid
+•⁠  ⁠Workflow diagram
+•⁠  ⁠Outcome metrics
+•⁠  ⁠Demo CTA
+Modules may include GDMT optimization, deprescribing, renal dosing, drug interactions, drug-supplement interactions, Beers Criteria, anticholinergic burden, QT risk, and hyperkalemia prevention.
+
+Platform
+Explain the architecture, reasoning workflow, evidence layer, and modules without exposing unnecessary implementation details.
+
+Pricing
+Show per-provider SaaS tiers with a feature comparison matrix. (Do not put actual dollar numbers as this is TBD, instead place $XXX)
+
+Provider Panel
+Show the mock patient panel and link each patient into the demo.
+
+8.⁠ ⁠Quality requirements
+•⁠  ⁠Backend, authentication, and database infrastructure  
+•⁠  ⁠Use typed, in-memory mock data for the current demo
+•⁠  ⁠Implement deterministic clinical rules
+•⁠  ⁠Use verified evidence links only
+•⁠  ⁠Use a responsive, laptop-first design
+•⁠  ⁠Persist state through localStorage
+•⁠  ⁠Do not display generic dashboard disclaimers
+•⁠  ⁠Use evidence, confidence scores, and patient-specific reasoning instead
+•⁠  ⁠Use serious, clinician-first language
+•⁠  ⁠Display exact doses, laboratory values, thresholds, and guideline or trial names
+•⁠  ⁠Avoid consumer-wellness language and unnecessary technical implementation language
+
+Prompt #2
+
+
+# Making Kapsule Clinically Useful
+
+Goal: a busy clinician (often not tech-savvy, already alert-fatigued) can open a patient, understand risk, and act in **under 60 seconds** without reading paragraphs.
+
+Grouped by the 5 things that actually change clinician behavior.
+
+
+## 1. Kill alert fatigue — show less, mean more
+
+Today every recommendation looks equally urgent. Fix:
+
+- **One "Top of Mind" card** per patient at the top: the single most consequential action right now (e.g., "Hold lisinopril — K⁺ 5.8, AKI"). Everything else collapses behind a "5 more" chevron.
+- **Tiered surfacing**: Critical (red, blocks) → Actionable (amber, one-click) → FYI (muted, silent). Only Critical uses color + icon + motion. FYI never animates.
+- **Snooze / Not clinically relevant / Already addressed** on every card — persist per clinician so the same rec doesn't reappear tomorrow.
+- **De-duplicate** across modules: if Polypharmacy and Dosing both flag the same drug, merge into one card with two reasons.
+- **Confidence gate**: hide anything <70% unless clinician opens "Show low-confidence."
+
+## 2. Make every card answer 4 questions in one glance
+
+Redesign the recommendation card to a fixed 4-line grammar:
+
+```
+WHAT   Hold amlodipine 10 mg
+WHY    Bilateral ankle edema x3 wk, started 6 wk after amlodipine ↑
+IF NOT LLE edema, fall risk, likely diuretic add-on cascade
+DO     [Accept & draft order] [Defer 7d] [Not relevant]
+```
+
+No jargon-heavy module tags in the primary view. Evidence citation collapses under a small "Why we think this" link.
+
+## 3. A single "Patient at a glance" strip — always visible
+
+A sticky 40px strip across the top with only:
+- Composite risk **0–100** with a colored dot (green/amber/red) and 30-day trend arrow
+- 4 vitals-of-record for meds: **eGFR, K⁺, INR, QTc** with last value + date
+- Allergy count (red if any severe)
+- # active meds, # high-risk
+
+This replaces scanning 3 tabs. Values are mono-font, right-aligned, no chart junk.
+
+## 4. Action, not information
+
+Every screen ends in a verb, not a paragraph.
+- **Accept** → drafts the order in the EHR order-entry panel, pre-filled, requires one signature.
+- **Defer** → asks *why* (patient preference / awaiting labs / disagree) — this trains the model AND gives QI data.
+- **Bulk accept safe** already exists in Deprescribe — extend to Monitoring ("Order all recommended labs").
+- Undo toast for 8 seconds after any action.
+
+## 5. Trust — clinicians won't act on a black box
+
+- **"Why we think this"** panel: shows the exact rule (Beers 2023, STOPP B7), the patient data points that triggered it (with dates), and the evidence link. No LLM prose in the primary path.
+- **Confidence + basis**: "High (guideline)" vs "Medium (retrospective study)" vs "Low (case series)" — a plain-English label, not a percentage.
+- **Show the counter-evidence** when it exists ("2 studies disagree").
+- **Provenance on every data point**: hover eGFR → "Epic, 07-14-2026, Quest".
+
+
+## Additional high-impact, low-effort changes
+
+- **Print / one-page PDF summary** for handoff and non-EHR clinicians.
+- **Keyboard shortcuts** (J/K to move between recs, A to accept, D to defer) — power users adopt fast.
+- **Read-only "Share with patient" view**: same recs rewritten at 6th-grade reading level, one per screen.
+- **Dark mode by default at night** (many hospitals dim after 7pm).
+- **Empty states that teach**: instead of "No recommendations," show "No new risks since 07-15. Last review: Dr. Patel."
+- **Latency budget visible**: a tiny "Reasoned in 380ms · 6 engines" footer builds trust that it's live, not cached.
+
+
+## Visual/interaction principles to enforce project-wide
+
+- **One accent color per screen** for the primary action. Everything else is neutral. Today's teal/coral/orange/pink/blue per-tab is fine, but *within* a tab collapse to one accent.
+- **Numbers in mono, prose in Inter** — clinicians scan numbers first.
+- **≥16px body, ≥14px labels**, 44px tap targets — many clinicians are 50+ on shared workstations.
+- **No animation on data**, only on state transitions (accept → checkmark). Motion on labs feels like a video game.
+- **Icons + text, never icons alone.**
+- **Max 3 colors visible in any card.** No rainbow chips.
+
+
+## Suggested build order (if you want to ship in phases)
+
+1. **Top-of-Mind card + tiered surfacing + snooze** (biggest fatigue reducer)
+2. **4-line card grammar + "Why we think this" panel** (trust)
+3. **Sticky at-a-glance strip** (speed)
+4. **Defer-with-reason + Accept-drafts-order loop** (closed loop)
+5. **Print summary + patient-friendly view + keyboard shortcuts** (polish)
+
+Show an inline “Why we think this” evidence drawer when I click a priority chip, so I can review key patient factors without leaving the strip.  Implement a bulk mode on the sticky strip so I can select multiple priorities and Review/Accept/Snooze them in one action.
+
+Prompt #3
+
+When a recommendation on a specific medication is accepted, it should be added to the EHR order that needs to be modified. The change will be pending for the clinician to review and approve. This will remain in the order queue until the clinician signs it.
+
+make the details specialty specific. eg viewing as primary care (primary care sees all), cardiology, nephrology, etc. for example, a rheumatologist would not manage
+
+Add configurable snooze durations (e.g., 4h, 24h, 7d) to the PriorityStrip so I can control when items resurface.

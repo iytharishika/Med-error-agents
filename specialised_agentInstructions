@@ -1,0 +1,109 @@
+Kapsule Reasoning Agents — Specifications
+Six specialized agents that compose the medication reasoning loop. Each entry lists purpose, tools/models it calls, and the exact EHR data slices it must pull.
+
+1. Polypharmacy / Deprescribing Analyzer
+Short description Detects unnecessary, duplicate, or harm-prone medications in the active regimen and produces a ranked, individualized deprescribing plan with taper schedules.
+Tools needed
+* Rules engine over Beers 2023, STOPP/START v3, Choosing Wisely
+* Duplicate-therapy class matcher (drug-class ontology, e.g., RxNorm + ATC)
+* Cascade detector (side-effect → downstream drug graph)
+* LLM for taper-plan narrative + patient-specific rationale
+* Fall-risk / anticholinergic burden calculators (ACB score)
+EHR data required
+* Active medication list (name, dose, route, frequency, start date, indication)
+* Problem list and past medical history
+* Age, sex, weight, frailty indicators, functional status
+* Recent labs: BMP, CBC, LFTs
+* Prior adverse drug events / intolerances
+* Fall history, cognitive assessments (MMSE/MoCA if available)
+* Goals of care / advance directives when present
+
+2. GDMT Optimization Agent
+Short description Compares the current regimen against current guideline-directed medical therapy for HFrEF, T2DM, CAD, CKD, and AFib. Flags missing therapies and quantifies expected mortality/morbidity benefit.
+Tools needed
+* Guideline knowledge base (ACC/AHA HF, ADA, KDIGO, ESC) with versioning
+* Eligibility/contraindication checker
+* Benefit estimator (NNT, ARR from landmark trials)
+* LLM for evidence-grounded rationale + citation formatting
+EHR data required
+* Diagnoses with ICD-10 codes and onset dates
+* Ejection fraction, NYHA class, most recent echo
+* Labs: eGFR, potassium, HbA1c, LDL, BNP/NT-proBNP
+* Vitals: BP, HR trends
+* Active meds with doses (to detect sub-target dosing)
+* Prior contraindications, allergies, intolerances
+* Hospitalization history (HF admissions, MI)
+
+3. Dose Intelligence Agent
+Short description Validates every dose against renal, hepatic, age, and weight parameters. Flags contraindications and recommends adjusted doses before the order is signed.
+Tools needed
+* Renal + hepatic dose-adjustment tables (Lexicomp/Micromedex-style dataset)
+* eGFR calculator (CKD-EPI 2021), Child-Pugh classifier
+* Weight-based dosing calculator (pediatric or oncology if in scope)
+* Trend analyzer over labs (not just latest value)
+* Pre-order guardrail hook into CPOE
+EHR data required
+* Active + newly ordered meds with doses and frequencies
+* Serial creatinine and eGFR (last 6–12 months)
+* LFTs (AST, ALT, bilirubin, albumin, INR) for Child-Pugh
+* Height, weight, BSA
+* Age, sex
+* Dialysis status and schedule
+* Pregnancy status when relevant
+
+4. Risk Monitoring Agent
+Short description Continuously scores composite adverse-event risk (QT prolongation, bleeding, hyperkalemia, sedation, hypoglycemia, fall) across the regimen and generates a patient-specific monitoring plan.
+Tools needed
+* Composite risk calculators (HAS-BLED, CHA₂DS₂-VASc, QT-drug list, ACB)
+* Time-series lab surveillance (delta detection, threshold triggers)
+* Monitoring-plan generator (what lab, when, why)
+* Alert deduplication + severity tiering
+* LLM for plain-language rationale
+EHR data required
+* Active meds and recent starts/stops (change events matter)
+* Labs trends: K+, Mg, creatinine, INR, glucose, TSH, CBC
+* ECG data: most recent QTc, rhythm
+* Vitals trends: BP, HR, SpO₂, weight
+* Bleeding history, fall history, prior hypoglycemia
+* Comorbidities driving risk (CKD, HF, cirrhosis)
+* Encounter/admission history for outcome anchoring
+
+5. Drug–Supplement Interaction Agent
+Short description Reconciles prescribed meds with OTC drugs and supplements the patient reports, quantifies interaction severity, and produces mechanism-grounded recommendations.
+Tools needed
+* Interaction knowledge base covering supplements (NatMed, ODS, Lexicomp Natural Products)
+* NLP parser for patient-reported supplements from notes / intake forms
+* Severity grader (contraindicated / major / moderate / monitor) with mechanism + onset
+* Bleeding / serotonergic / CYP-inhibition stack detectors
+* LLM for patient-facing explanation
+EHR data required
+* Active med list
+* Patient-reported OTC and supplement list (intake questionnaires, med rec notes, patient portal entries)
+* Free-text clinical notes mentioning supplements ("takes turmeric daily")
+* Labs affected by interactions: INR, LFTs, K+, glucose
+* Transplant / anticoagulation / oncology status (high-consequence contexts)
+* Allergies and prior adverse reactions
+
+6. Cost Optimization Agent
+Short description Finds therapeutically equivalent, formulary-preferred alternatives per the patient's plan, estimates copay impact, and ranks options by clinical equivalence, adherence risk, and out-of-pocket cost.
+Tools needed
+* Formulary + PBM tier data (per plan)
+* Therapeutic-alternative mapper (same class, evidence-equivalent)
+* Copay / cash-price estimator (GoodRx-style pricing feed, 340B when applicable)
+* Prior-auth predictor
+* Outcomes model (quality + safety + cost delta per switch)
+* LLM for member-facing explanation
+EHR data required
+* Active meds with NDC/RxNorm codes
+* Insurance plan + PBM identifier
+* Refill history and adherence signals (PDC, gap days) from pharmacy claims
+* Patient-reported cost barriers ("stopped due to cost" notes)
+* Diagnoses (to confirm indication for alternative)
+* Prior-auth history and denials
+* Allergies and intolerances (to filter alternatives)
+
+Cross-cutting notes
+* Shared FHIR resources every agent reads: Patient, MedicationRequest, MedicationStatement, AllergyIntolerance, Condition, Observation (labs + vitals), Encounter.
+* Shared writes: each agent emits a normalized Recommendation with tier, specialty, confidence, orderTarget, and evidence[] — matching the existing Recommendation type in src/lib/patients.ts.
+* Orchestration: a router agent dispatches patient events (new lab, new order, admit/discharge) to the relevant subset instead of running all six on every change.
+Link for open source med calculator: https://api.openmedcalc.org/docs

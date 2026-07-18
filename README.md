@@ -17,7 +17,7 @@ resolver** reconciles contradictory recommendations safety-first, and a
 **recommendation synthesizer** merges everything into one prioritized, clinician-
 ready plan plus a patient-facing summary.
 
-Grounded in the provided `synthetic-ambient-fhir-25` dataset (25 synthetic FHIR
+Grounded in the `synthetic-ambient-fhir-25` dataset (25 synthetic FHIR
 R4 encounters). All patient data is synthetic.
 
 ## Architecture

@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from . import data, drug_library, engine, evidence, fhir_utils as fu, orchestrator
 from .agents import ALL_AGENTS
+from .chart import ChartPatient, context_from_chart
 from .config import get_settings
 
 app = FastAPI(
@@ -100,6 +101,32 @@ async def run_agent(patient_id: str, agent_name: str):
         return await orchestrator.run_single_agent(rec, agent_name)
     except KeyError:
         raise HTTPException(404, f"Unknown agent {agent_name}")
+
+
+# ---- frontend chart analysis (the UI's own mock patients) ------------------
+class AnalyzeChartBody(BaseModel):
+    patient: ChartPatient
+    event: Optional[str] = None
+    specialty: str = "primary_care"
+
+
+@app.post("/analyze-chart")
+async def analyze_chart(body: AnalyzeChartBody):
+    """Run the full agentic loop over a patient chart supplied by the frontend."""
+    ctx = context_from_chart(body.patient)
+    return await orchestrator.analyze_context(ctx, body.event, body.specialty)
+
+
+class DrugCheckChartBody(BaseModel):
+    patient: ChartPatient
+    candidate_drugs: list[str]
+
+
+@app.post("/drug-check-chart")
+def drug_check_chart(body: DrugCheckChartBody):
+    """Deterministic New-Med Simulator over a frontend chart (fast, no LLM)."""
+    ctx = context_from_chart(body.patient)
+    return engine.drug_check(ctx, body.candidate_drugs)
 
 
 # ---- drug library / deterministic checks -----------------------------------

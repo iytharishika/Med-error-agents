@@ -81,12 +81,26 @@ async def _run_agents(agents, ctx, calcs) -> list[AgentResult]:
     return list(await asyncio.gather(*[_one(a) for a in agents]))
 
 
+def normalize_specialty(specialty: Optional[str]) -> str:
+    """Accept frontend-style 'primary-care' or backend 'primary_care'."""
+    s = (specialty or "primary_care").replace("-", "_").lower()
+    return s if s in SPECIALTY_AGENTS else "primary_care"
+
+
 async def analyze_record(
     record: dict, event: Optional[str] = None, specialty: str = "primary_care"
 ) -> AnalysisResponse:
+    return await analyze_context(fu.normalize(record), event, specialty)
+
+
+async def analyze_context(
+    ctx: dict, event: Optional[str] = None, specialty: str = "primary_care"
+) -> AnalysisResponse:
+    """Run the full loop over an already-normalized context. This is the shared
+    core used by both the FHIR-dataset route and the frontend chart route."""
     start = time.time()
     settings = get_settings()
-    ctx = fu.normalize(record)
+    specialty = normalize_specialty(specialty)
     digest = fu.clinical_digest(ctx)
 
     calcs = await calc.auto_calculators(ctx)
